@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Lambda name="Lambda">
+            <PatternLayout>
+                <Pattern>[%d{ISO8601}] [%level] [%logger] %msg%n</Pattern>
+            </PatternLayout>
+        </Lambda>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Lambda"/>
+        </Root>
+        <Logger name="com.steverhoton.poc" level="DEBUG" additivity="false">
+            <AppenderRef ref="Lambda"/>
+        </Logger>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,103 @@
+plugins {
+    id 'java'
+    id 'com.diffplug.spotless' version '6.22.0'
+    id 'jacoco'
+}
+
+group = 'com.steverhoton.poc'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // AWS Lambda
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    
+    // AWS SDK v2
+    implementation platform('software.amazon.awssdk:bom:2.21.0')
+    implementation 'software.amazon.awssdk:lambda'
+    
+    // Stytch SDK - Using latest version
+    // Note: The API has changed significantly in recent versions
+    // This implementation uses mocked Stytch models for demonstration
+    // implementation 'com.stytch.java:sdk:7.26.0'
+    
+    // Logging
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.apache.logging.log4j:log4j-slf4j2-impl:2.21.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.21.1'
+    implementation 'com.amazonaws:aws-lambda-java-log4j2:1.6.0'
+    
+    // JSON processing
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
+    
+    // Validation
+    implementation 'org.apache.commons:commons-lang3:3.13.0'
+    
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'org.mockito:mockito-core:5.6.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.6.0'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'uk.org.webcompere:system-stubs-jupiter:2.1.5'
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
+
+spotless {
+    java {
+        googleJavaFormat('1.17.0')
+        importOrder('java', 'javax', 'org', 'com', '')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+task buildZip(type: Zip) {
+    from compileJava
+    from processResources
+    into('lib') {
+        from configurations.runtimeClasspath
+    }
+    archiveFileName = 'srnextstytchmember.zip'
+}
+
+build.dependsOn buildZip
