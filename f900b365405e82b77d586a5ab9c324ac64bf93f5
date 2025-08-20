@@ -1,0 +1,12 @@
+Session Prompts:
+
+1. Initial request: Create a Java 21 based AWS Lambda using the AWS SDK v2 for full CRUD operations of the Stytch API for members. Support API Gateway V2 events. Follow Java development rules. Use environment variables for Stytch credentials. Achieve 80%+ test coverage.
+
+2. Clarifications provided:
+   - GroupId: com.steverhoton.poc
+   - ArtifactId: srnextstytchmember
+   - Implement all member operations (create, read, search, update, delete, reactivate)
+   - Use standard JAR with AWS Lambda runtime (not Quarkus)
+   - Provide different error messages for different failure scenarios
+
+3. Final request: Commit work, add prompts to git notes, push, and create PR using GitHub MCP integration.
