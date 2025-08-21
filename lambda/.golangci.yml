@@ -1,0 +1,174 @@
+run:
+  timeout: 5m
+  tests: true
+  skip-dirs:
+    - vendor
+    - .git
+  skip-files:
+    - ".*_test.go"
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters:
+  enable:
+    - gofmt
+    - govet
+    - errcheck
+    - staticcheck
+    - gosec
+    - revive
+    - gocyclo
+    - misspell
+    - unused
+    - gosimple
+    - bodyclose
+    - goconst
+    - unparam
+    - ineffassign
+    - unconvert
+    - goimports
+    - godot
+    - prealloc
+    - nolintlint
+    - dogsled
+    - dupl
+    - funlen
+    - gocognit
+    - gocritic
+    - gofumpt
+    - goprintffuncname
+    - lll
+    - nakedret
+    - nestif
+    - rowserrcheck
+    - sqlclosecheck
+    - stylecheck
+    - typecheck
+    - whitespace
+
+linters-settings:
+  gofmt:
+    simplify: true
+  
+  govet:
+    check-shadowing: true
+    enable-all: true
+  
+  gocyclo:
+    min-complexity: 15
+  
+  revive:
+    rules:
+      - name: exported
+        disabled: false
+        arguments:
+          - "disableStutteringCheck"
+      - name: var-naming
+        disabled: false
+      - name: package-comments
+        disabled: false
+      - name: blank-imports
+        disabled: false
+  
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  
+  gosec:
+    excludes:
+      - G104 # Unhandled errors - covered by errcheck
+    confidence: medium
+  
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  
+  misspell:
+    locale: US
+  
+  unused:
+    check-exported: false
+  
+  unparam:
+    check-exported: false
+  
+  dupl:
+    threshold: 100
+  
+  funlen:
+    lines: 100
+    statements: 50
+  
+  gocognit:
+    min-complexity: 20
+  
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+      - style
+      - opinionated
+    disabled-checks:
+      - commentedOutCode
+      - whyNoLint
+  
+  gofumpt:
+    lang-version: "1.24"
+    extra-rules: true
+  
+  lll:
+    line-length: 120
+    tab-width: 4
+  
+  nakedret:
+    max-func-lines: 30
+  
+  nestif:
+    min-complexity: 4
+  
+  stylecheck:
+    checks:
+      - all
+      - -ST1003 # Allow CamelCase in some cases
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on test files
+    - path: _test\.go
+      linters:
+        - gosec
+        - dupl
+        - funlen
+        - gocognit
+    
+    # Exclude lll in long lines with URLs
+    - source: "https://"
+      linters:
+        - lll
+    
+    # Allow unused parameters in interfaces
+    - path: internal/service/member_service.go
+      text: "unused-parameter"
+      linters:
+        - revive
+    
+    # Allow some shadowing in small scopes
+    - path: internal/handler/handler.go
+      text: "shadow"
+      linters:
+        - govet
+  
+  max-issues-per-linter: 50
+  max-same-issues: 10
+  
+  # Show all issues from a linter
+  exclude-use-default: false
+  
+  # Exclude common false positives
+  exclude:
+    - "Error return value of .* is not checked"
+    - "should have comment or be unexported"
+    - "comment on exported .* should be of the form"
