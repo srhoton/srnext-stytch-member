@@ -34,3 +34,28 @@ Thumbs.db
 # Local env files
 .env
 .env.local
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfplan
+terraform/tfplan
+terraform/.terraform.tfstate*
+terraform/crash.log
+terraform/override.tf
+terraform/override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Lambda build
+lambda/build/
+lambda/lambda-deployment.zip
+
+# Go
+vendor/
+
+# Test coverage
+*.out
+*.html
+coverage/

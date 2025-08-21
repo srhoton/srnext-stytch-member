@@ -1,0 +1,870 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Stytch Member Management API",
+    "description": "AWS Lambda function for managing Stytch B2B organization members with full CRUD operations via AWS Application Load Balancer (ALB) events.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Development Team",
+      "email": "team@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.example.com",
+      "description": "Staging server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Members",
+      "description": "Operations for managing Stytch B2B organization members"
+    }
+  ],
+  "paths": {
+    "/members": {
+      "post": {
+        "tags": ["Members"],
+        "summary": "Create a new member",
+        "description": "Creates a new member in a Stytch B2B organization",
+        "operationId": "createMember",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMemberRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Basic member creation",
+                  "value": {
+                    "organization_id": "org-123",
+                    "email_address": "user@example.com",
+                    "name": "John Doe"
+                  }
+                },
+                "withRoles": {
+                  "summary": "Member with roles and metadata",
+                  "value": {
+                    "organization_id": "org-123",
+                    "email_address": "admin@example.com",
+                    "name": "Jane Admin",
+                    "roles": ["admin", "user"],
+                    "trusted_metadata": {
+                      "department": "Engineering",
+                      "employee_id": "EMP123"
+                    },
+                    "untrusted_metadata": {
+                      "preferences": {
+                        "theme": "dark"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/members/{member_id}": {
+      "get": {
+        "tags": ["Members"],
+        "summary": "Get a member",
+        "description": "Retrieves a member by ID from a Stytch B2B organization",
+        "operationId": "getMember",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/MemberId"
+          },
+          {
+            "$ref": "#/components/parameters/OrganizationIdQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Members"],
+        "summary": "Update a member",
+        "description": "Updates an existing member in a Stytch B2B organization",
+        "operationId": "updateMember",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/MemberId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMemberRequest"
+              },
+              "examples": {
+                "updateName": {
+                  "summary": "Update member name",
+                  "value": {
+                    "organization_id": "org-123",
+                    "name": "John Updated"
+                  }
+                },
+                "updateRoles": {
+                  "summary": "Update member roles",
+                  "value": {
+                    "organization_id": "org-123",
+                    "roles": ["admin", "manager"]
+                  }
+                },
+                "updateMFA": {
+                  "summary": "Update MFA settings",
+                  "value": {
+                    "organization_id": "org-123",
+                    "mfa_phone_number": "+1234567890",
+                    "mfa_enrolled": true,
+                    "default_mfa_method": "sms"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Member updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Members"],
+        "summary": "Delete a member",
+        "description": "Removes a member from a Stytch B2B organization",
+        "operationId": "deleteMember",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/MemberId"
+          },
+          {
+            "$ref": "#/components/parameters/OrganizationIdQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Member deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberResponse"
+                },
+                "example": {
+                  "status_code": 200,
+                  "request_id": "req_123456",
+                  "member": {
+                    "member_id": "member-123"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/members/search": {
+      "post": {
+        "tags": ["Members"],
+        "summary": "Search members",
+        "description": "Searches for members across one or more Stytch B2B organizations",
+        "operationId": "searchMembers",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchMembersRequest"
+              },
+              "examples": {
+                "basic": {
+                  "summary": "Basic search",
+                  "value": {
+                    "organization_ids": ["org-123"]
+                  }
+                },
+                "withPagination": {
+                  "summary": "Search with pagination",
+                  "value": {
+                    "organization_ids": ["org-123", "org-456"],
+                    "limit": 20,
+                    "cursor": "next_page_cursor"
+                  }
+                },
+                "withQuery": {
+                  "summary": "Search with query filters",
+                  "value": {
+                    "organization_ids": ["org-123"],
+                    "query": {
+                      "email": "admin@example.com",
+                      "role": "admin"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search results retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MembersListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateMemberRequest": {
+        "type": "object",
+        "required": ["organization_id", "email_address"],
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "description": "The unique identifier of the organization",
+            "example": "org-123"
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "description": "The member's email address",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "The member's full name",
+            "example": "John Doe"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "An external identifier for the member",
+            "example": "ext-123"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of roles assigned to the member",
+            "example": ["member", "admin"]
+          },
+          "trusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Trusted metadata that can only be modified by the organization",
+            "example": {
+              "department": "Engineering",
+              "employee_id": "EMP123"
+            }
+          },
+          "untrusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Metadata that can be modified by the member",
+            "example": {
+              "preferences": {
+                "theme": "dark"
+              }
+            }
+          },
+          "mfa_phone_number": {
+            "type": "string",
+            "description": "Phone number for MFA",
+            "pattern": "^\\+[1-9]\\d{1,14}$",
+            "example": "+1234567890"
+          },
+          "create_member_as_pending": {
+            "type": "boolean",
+            "description": "Whether to create the member in pending state",
+            "default": false
+          },
+          "is_breakglass": {
+            "type": "boolean",
+            "description": "Whether this is a breakglass account",
+            "default": false
+          }
+        }
+      },
+      "UpdateMemberRequest": {
+        "type": "object",
+        "required": ["organization_id", "member_id"],
+        "properties": {
+          "organization_id": {
+            "type": "string",
+            "description": "The unique identifier of the organization",
+            "example": "org-123"
+          },
+          "member_id": {
+            "type": "string",
+            "description": "The unique identifier of the member",
+            "example": "member-123"
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "description": "The member's new email address",
+            "example": "newemail@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "The member's updated name",
+            "example": "Jane Doe"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "Updated external identifier",
+            "example": "ext-456"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Updated list of roles",
+            "example": ["admin", "manager"]
+          },
+          "trusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Updated trusted metadata"
+          },
+          "untrusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Updated untrusted metadata"
+          },
+          "mfa_phone_number": {
+            "type": "string",
+            "description": "Updated MFA phone number",
+            "pattern": "^\\+[1-9]\\d{1,14}$"
+          },
+          "mfa_enrolled": {
+            "type": "boolean",
+            "description": "Whether MFA is enrolled"
+          },
+          "default_mfa_method": {
+            "type": "string",
+            "description": "Default MFA method",
+            "enum": ["sms", "totp"]
+          },
+          "is_breakglass": {
+            "type": "boolean",
+            "description": "Whether this is a breakglass account"
+          }
+        }
+      },
+      "SearchMembersRequest": {
+        "type": "object",
+        "required": ["organization_ids"],
+        "properties": {
+          "organization_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "List of organization IDs to search",
+            "example": ["org-123", "org-456"]
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Pagination cursor for retrieving next page",
+            "example": "next_page_cursor"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 20,
+            "description": "Maximum number of results to return"
+          },
+          "query": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Query filters for searching members",
+            "example": {
+              "email": "admin@example.com",
+              "role": "admin"
+            }
+          }
+        }
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "member_id": {
+            "type": "string",
+            "description": "Unique identifier of the member",
+            "example": "member-123"
+          },
+          "organization_id": {
+            "type": "string",
+            "description": "Organization this member belongs to",
+            "example": "org-123"
+          },
+          "email_address": {
+            "type": "string",
+            "format": "email",
+            "description": "Member's email address",
+            "example": "user@example.com"
+          },
+          "status": {
+            "type": "string",
+            "description": "Member's current status",
+            "enum": ["active", "pending", "suspended", "deleted"],
+            "example": "active"
+          },
+          "name": {
+            "type": "string",
+            "description": "Member's full name",
+            "example": "John Doe"
+          },
+          "external_id": {
+            "type": "string",
+            "description": "External identifier",
+            "example": "ext-123"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Member's assigned roles",
+            "example": ["member", "admin"]
+          },
+          "trusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Organization-controlled metadata"
+          },
+          "untrusted_metadata": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Member-controlled metadata"
+          },
+          "mfa_phone_number": {
+            "type": "string",
+            "description": "Phone number for MFA",
+            "example": "+1234567890"
+          },
+          "mfa_enrolled": {
+            "type": "boolean",
+            "description": "Whether MFA is enrolled",
+            "example": true
+          },
+          "default_mfa_method": {
+            "type": "string",
+            "description": "Default MFA method",
+            "enum": ["sms", "totp"],
+            "example": "sms"
+          },
+          "is_breakglass": {
+            "type": "boolean",
+            "description": "Whether this is a breakglass account",
+            "example": false
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the member was created",
+            "example": "2024-01-15T10:30:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the member was last updated",
+            "example": "2024-01-20T14:45:00Z"
+          }
+        }
+      },
+      "MemberResponse": {
+        "type": "object",
+        "required": ["status_code", "request_id", "member"],
+        "properties": {
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 200
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Unique request identifier",
+            "example": "req_123456"
+          },
+          "member": {
+            "$ref": "#/components/schemas/Member"
+          }
+        }
+      },
+      "MembersListResponse": {
+        "type": "object",
+        "required": ["status_code", "request_id", "members"],
+        "properties": {
+          "status_code": {
+            "type": "integer",
+            "description": "HTTP status code",
+            "example": 200
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Unique request identifier",
+            "example": "req_123456"
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Member"
+            },
+            "description": "List of members matching the search criteria"
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Cursor for retrieving the next page of results",
+            "example": "next_page_cursor"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Error code",
+                "example": "BAD_REQUEST"
+              },
+              "message": {
+                "type": "string",
+                "description": "Human-readable error message",
+                "example": "Invalid request parameters"
+              },
+              "details": {
+                "type": "string",
+                "description": "Additional error details",
+                "example": "Email address format is invalid"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "MemberId": {
+        "name": "member_id",
+        "in": "path",
+        "required": true,
+        "description": "The unique identifier of the member",
+        "schema": {
+          "type": "string",
+          "example": "member-123"
+        }
+      },
+      "OrganizationIdQuery": {
+        "name": "organization_id",
+        "in": "query",
+        "required": true,
+        "description": "The unique identifier of the organization",
+        "schema": {
+          "type": "string",
+          "example": "org-123"
+        }
+      },
+      "OrganizationIdHeader": {
+        "name": "X-Organization-ID",
+        "in": "header",
+        "required": false,
+        "description": "The unique identifier of the organization (alternative to query parameter)",
+        "schema": {
+          "type": "string",
+          "example": "org-123"
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request - Invalid input parameters",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "BAD_REQUEST",
+                "message": "Invalid request",
+                "details": "Email address format is invalid"
+              }
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized - Authentication failed",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "UNAUTHORIZED",
+                "message": "Authentication failed",
+                "details": "Invalid API credentials"
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden - Insufficient permissions",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "FORBIDDEN",
+                "message": "Access denied",
+                "details": "Insufficient permissions for this operation"
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found - Resource does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "NOT_FOUND",
+                "message": "Member not found",
+                "details": "No member exists with the specified ID"
+              }
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "Conflict - Resource already exists",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "CONFLICT",
+                "message": "Member already exists",
+                "details": "A member with this email address already exists"
+              }
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Too many requests - Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "RATE_LIMITED",
+                "message": "Too many requests",
+                "details": "Rate limit exceeded. Please retry after some time"
+              }
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": {
+                "code": "INTERNAL_ERROR",
+                "message": "An error occurred",
+                "details": "An unexpected error occurred while processing the request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key for authentication"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token for authentication"
+      }
+    }
+  },
+  "security": [
+    {
+      "ApiKeyAuth": []
+    },
+    {
+      "BearerAuth": []
+    }
+  ]
+}

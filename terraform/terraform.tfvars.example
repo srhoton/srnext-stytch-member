@@ -1,0 +1,57 @@
+# AWS Configuration
+aws_region  = "us-west-2"
+environment = "sandbox"
+
+# Project Configuration
+project_name = "srnext-stytch-member"
+
+# ALB Configuration
+alb_arn           = "arn:aws:elasticloadbalancing:us-west-2:345594586248:loadbalancer/app/external-private-alb/720e2b5474d3d602"
+alb_listener_port = 443
+alb_path_patterns = ["/members", "/members/*"]
+alb_rule_priority = 100
+
+# DNS Configuration
+dns_name      = "srnext-stytch-member.sb.int.fullbayapi.com"
+dns_zone_name = "sb.int.fullbayapi.com"
+
+# Lambda Configuration
+lambda_memory_size                    = 512
+lambda_timeout                        = 30
+lambda_reserved_concurrent_executions = 100
+lambda_architecture                   = "arm64"
+
+# Stytch Configuration (REQUIRED - set these values)
+stytch_project_id = "project-test-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+stytch_secret     = "secret-test-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+stytch_env        = "test"
+
+# DynamoDB Configuration
+dynamodb_table_name   = "srnext-stytch-members"
+dynamodb_billing_mode = "PAY_PER_REQUEST"
+# If using PROVISIONED billing mode:
+# dynamodb_read_capacity  = 5
+# dynamodb_write_capacity = 5
+
+# CloudWatch Configuration
+log_retention_days   = 7
+enable_xray_tracing  = true
+
+# Monitoring Configuration
+enable_cloudwatch_alarms = true
+alarm_email              = "team@example.com"
+error_rate_threshold     = 5
+throttle_threshold       = 10
+
+# VPC Configuration (optional - leave empty for no VPC)
+vpc_subnet_ids         = []
+vpc_security_group_ids = []
+
+# Tags
+default_tags = {
+  Environment = "sandbox"
+  Project     = "srnext-stytch-member"
+  ManagedBy   = "terraform"
+  Owner       = "development-team"
+  CostCenter  = "engineering"
+}
